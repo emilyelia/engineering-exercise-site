@@ -1,0 +1,106 @@
+# ============================================================
+# Decap CMS Configuration
+# Docs: https://decapcms.org/docs/configuration-options/
+# ============================================================
+
+backend:
+  name: git-gateway
+  branch: main   # UPDATE if your default branch is "master" or something else
+
+# Where uploaded images go in your repo
+media_folder: "public/images"
+# How those images are referenced in content (relative to the site root)
+public_folder: "/images"
+
+# Show an "Editorial Workflow" with Draft / In Review / Ready states
+# publish_mode: editorial_workflow  # Uncomment this if you want draft staging
+
+collections:
+
+  # ── Video Write-ups ───────────────────────────────────────────────────────
+  # One entry per video. The slug MUST equal the YouTube video ID.
+  # Example: for https://www.youtube.com/watch?v=dQw4w9WgXcQ
+  # set "YouTube Video ID" to: dQw4w9WgXcQ
+  - name: "videos"
+    label: "Video Write-ups"
+    label_singular: "Video Write-up"
+    folder: "src/content/videos"
+    create: true
+    slug: "{{fields.videoId}}"
+    summary: "{{title}}"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+        hint: "The video title (shown on the page and in search results)."
+
+      - label: "YouTube Video ID"
+        name: "videoId"
+        widget: "string"
+        hint: "The ID at the end of the YouTube URL. E.g. for ?v=dQw4w9WgXcQ, enter: dQw4w9WgXcQ"
+        pattern: ['^[A-Za-z0-9_-]{11}$', "Must be exactly 11 characters — the video ID from the YouTube URL"]
+
+      - label: "SEO Description"
+        name: "description"
+        widget: "text"
+        required: false
+        hint: "Shown in Google search results. Keep under 155 characters. Leave blank to auto-use the YouTube description."
+
+      - label: "Published Date"
+        name: "publishedAt"
+        widget: "datetime"
+        required: false
+        hint: "Optional. Used for structured data (JSON-LD). Defaults to the YouTube upload date."
+
+      - label: "Write-up"
+        name: "body"
+        widget: "markdown"
+        hint: "Your long-form article for this video. Supports full Markdown including images, code blocks, and links."
+
+  # ── Blog Posts ─────────────────────────────────────────────────────────────
+  - name: "blog"
+    label: "Blog Posts"
+    label_singular: "Blog Post"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    summary: "{{title}} ({{publishedAt}})"
+    fields:
+      - label: "Title"
+        name: "title"
+        widget: "string"
+
+      - label: "Description"
+        name: "description"
+        widget: "text"
+        hint: "Short summary for SEO and the blog listing page. Aim for 120–155 characters."
+
+      - label: "Published Date"
+        name: "publishedAt"
+        widget: "datetime"
+        date_format: "YYYY-MM-DD"
+        time_format: false
+
+      - label: "Updated Date"
+        name: "updatedAt"
+        widget: "datetime"
+        required: false
+        date_format: "YYYY-MM-DD"
+        time_format: false
+        hint: "Optional. Leave blank if the post hasn't been updated."
+
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        hint: "Comma-separated tags. E.g.: engineering, systems, tutorial"
+
+      - label: "Draft"
+        name: "draft"
+        widget: "boolean"
+        default: false
+        hint: "When true, this post is hidden from the public blog listing."
+
+      - label: "Body"
+        name: "body"
+        widget: "markdown"

@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# Block CMS admin from indexing
+Disallow: /admin/
+
+Sitemap: https://your-domain.com/sitemap-index.xml

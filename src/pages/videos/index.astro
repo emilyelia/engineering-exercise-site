@@ -1,0 +1,50 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import VideoCard from '../../components/VideoCard.astro';
+import { getChannelVideos } from '../../lib/youtube';
+import { getCollection } from 'astro:content';
+
+const videos = await getChannelVideos();
+const videoEntries = await getCollection('videos');
+const writtenIds = new Set(videoEntries.map(e => e.data.videoId));
+---
+
+<BaseLayout
+  title="Videos"
+  description="Full archive of Engineering Exercise videos — deep dives, tutorials, and engineering breakdowns. Each with thumbnails, timestamps, and long-form write-ups."
+>
+  <div class="container">
+    <header class="page-header">
+      <h1>Videos</h1>
+      {videos.length > 0 && (
+        <p class="page-subtitle">{videos.length} video{videos.length !== 1 ? 's' : ''}</p>
+      )}
+    </header>
+
+    {videos.length === 0 ? (
+      <div class="empty-state">
+        <p>No videos loaded.</p>
+        <p>
+          Set the <code>YOUTUBE_API_KEY</code> environment variable in Netlify to
+          automatically pull all videos from your channel at build time.
+        </p>
+      </div>
+    ) : (
+      <div class="video-grid">
+        {videos.map(video => (
+          <VideoCard
+            id={video.id}
+            title={video.title}
+            thumbnail={video.thumbnail}
+            publishedAt={video.publishedAt}
+            hasWriteup={writtenIds.has(video.id)}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .container { padding-top: 3rem; padding-bottom: 5rem; }
+</style>

@@ -1,0 +1,201 @@
+---
+const navLinks = [
+  { href: '/',       label: 'Home'   },
+  { href: '/videos', label: 'Videos' },
+  { href: '/blog',   label: 'Blog'   },
+  { href: '/about',  label: 'About'  },
+];
+
+const currentPath = Astro.url.pathname;
+
+function isActive(href: string) {
+  if (href === '/') return currentPath === '/';
+  return currentPath.startsWith(href);
+}
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+
+    <!-- LOGO PLACEHOLDER ─────────────────────────────────────────────────────
+         Drop your logo file into /public/ (e.g. /public/logo.png or logo.svg)
+         then replace /logo-placeholder.svg below with /logo.png (or .svg).
+         Adjust width/height to match your actual logo dimensions.
+    ─────────────────────────────────────────────────────────────────────── -->
+    <a href="/" class="logo" aria-label="Engineering Exercise — Home">
+      <img
+        src="/logo.png"
+        alt="Engineering Exercise"
+        width="71"
+        height="40"
+        loading="eager"
+        decoding="sync"
+        class="logo-img"
+      />
+    </a>
+
+    <nav aria-label="Main navigation">
+      <button
+        class="nav-toggle"
+        aria-label="Toggle navigation menu"
+        aria-expanded="false"
+        aria-controls="nav-list"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <ul class="nav-list" id="nav-list" role="list">
+        {navLinks.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              class:list={['nav-link', { active: isActive(href) }]}
+              aria-current={isActive(href) ? 'page' : undefined}
+            >
+              {label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>('.nav-toggle')!;
+  const navList = document.querySelector<HTMLElement>('.nav-list')!;
+
+  toggle?.addEventListener('click', () => {
+    const open = toggle.getAttribute('aria-expanded') === 'true';
+    toggle.setAttribute('aria-expanded', String(!open));
+    navList.classList.toggle('open', !open);
+  });
+
+  // Close menu when a link is clicked (mobile)
+  navList?.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      toggle.setAttribute('aria-expanded', 'false');
+      navList.classList.remove('open');
+    });
+  });
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    background: color-mix(in srgb, var(--bg) 85%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 1rem;
+  }
+
+  .logo { display: flex; align-items: center; flex-shrink: 0; }
+  .logo img { display: block; }
+
+  /* The logo PNG has a light background — give it a rounded pill so it
+     sits cleanly on any background colour. If you get a transparent-
+     background version of the logo, remove these two lines. */
+  .logo-img {
+    border-radius: 8px;
+    object-fit: cover;
+  }
+
+  nav { display: flex; align-items: center; }
+
+  .nav-list {
+    display: flex;
+    gap: 0.125rem;
+    list-style: none;
+    align-items: center;
+  }
+
+  .nav-link {
+    display: block;
+    padding: 0.4375rem 0.75rem;
+    border-radius: 6px;
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    transition: color 0.15s, background-color 0.15s;
+    white-space: nowrap;
+  }
+
+  .nav-link:hover {
+    color: var(--text);
+    background-color: var(--surface-2);
+    text-decoration: none;
+  }
+
+  .nav-link.active {
+    color: var(--accent);
+    background-color: var(--surface-2);
+  }
+
+  /* Hamburger button — hidden on desktop */
+  .nav-toggle {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    gap: 5px;
+    padding: 0.5rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    border-radius: var(--radius);
+  }
+
+  .nav-toggle span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--text);
+    border-radius: 2px;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  .nav-toggle[aria-expanded="true"] span:nth-child(1) {
+    transform: translateY(7px) rotate(45deg);
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(2) {
+    opacity: 0;
+  }
+  .nav-toggle[aria-expanded="true"] span:nth-child(3) {
+    transform: translateY(-7px) rotate(-45deg);
+  }
+
+  @media (max-width: 640px) {
+    .nav-toggle { display: flex; }
+
+    .nav-list {
+      display: none;
+      position: absolute;
+      top: var(--header-height);
+      left: 0;
+      right: 0;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-direction: column;
+      align-items: stretch;
+      padding: 0.75rem 1.5rem 1rem;
+      gap: 0.125rem;
+    }
+
+    .nav-list.open { display: flex; }
+    .nav-link { width: 100%; }
+  }
+</style>

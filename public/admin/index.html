@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Content Manager | Engineering Exercise</title>
+    <!--
+      Netlify Identity widget — handles login/logout for CMS access.
+      This is separate from the one on the public site.
+    -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+  </head>
+  <body>
+    <!--
+      Decap CMS — loads the full CMS interface.
+      Config is read from /admin/config.yml automatically.
+    -->
+    <script src="https://unpkg.com/decap-cms@^3.0.0/dist/decap-cms.js"></script>
+  </body>
+</html>

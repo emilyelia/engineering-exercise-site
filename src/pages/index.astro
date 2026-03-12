@@ -1,0 +1,181 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import VideoCard from '../components/VideoCard.astro';
+import { getChannelVideos } from '../lib/youtube';
+import { getCollection } from 'astro:content';
+
+const allVideos = await getChannelVideos();
+const latest3 = allVideos.slice(0, 3);
+
+// Know which videos already have CMS write-ups (to show the badge)
+const videoEntries = await getCollection('videos');
+const writtenIds = new Set(videoEntries.map(e => e.data.videoId));
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Engineering Exercise',
+  url: Astro.site?.toString(),
+  description: 'Deep-dive engineering videos, tutorials, and write-ups.',
+  sameAs: ['https://www.youtube.com/@EngineeringExercise'],
+};
+---
+
+<BaseLayout
+  title="Engineering Exercise"
+  description="Deep-dive engineering videos, tutorials, and long-form write-ups. Systematic thinking for curious engineers."
+  jsonLd={jsonLd}
+>
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <h1 class="hero-title">Engineering Exercise</h1>
+      <!--
+        UPDATE: Change this tagline to match your channel description.
+        You can also edit it directly in this file (src/pages/index.astro).
+      -->
+      <p class="hero-tagline">
+        Deep dives into engineering that actually make you think.
+      </p>
+      <div class="hero-actions">
+        <a href="/videos" class="btn-primary">Browse Videos</a>
+        <a href="/about" class="btn-secondary">About the channel →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Latest Videos ─────────────────────────────────────────────────── -->
+  {latest3.length > 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Latest Videos</h2>
+          <a href="/videos" class="see-all">See all →</a>
+        </div>
+        <div class="video-grid">
+          {latest3.map(video => (
+            <VideoCard
+              id={video.id}
+              title={video.title}
+              thumbnail={video.thumbnail}
+              publishedAt={video.publishedAt}
+              hasWriteup={writtenIds.has(video.id)}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {latest3.length === 0 && (
+    <section class="section">
+      <div class="container">
+        <div class="section-header">
+          <h2>Latest Videos</h2>
+        </div>
+        <p class="empty-notice">
+          Add your <code>YOUTUBE_API_KEY</code> environment variable to display videos.
+        </p>
+      </div>
+    </section>
+  )}
+
+  <!-- ── About Blurb ───────────────────────────────────────────────────── -->
+  <section class="about-strip">
+    <div class="container about-inner">
+      <div class="about-text">
+        <h2>About the Channel</h2>
+        <!--
+          UPDATE: Replace this paragraph with your own channel description.
+          Edit src/pages/index.astro directly, or manage it via the CMS About page.
+        -->
+        <p>
+          Engineering Exercise is a channel dedicated to understanding engineering from
+          first principles — through structured problem solving, hands-on analysis, and
+          the kind of rigorous thinking that separates good engineers from great ones.
+        </p>
+        <a href="/about" class="btn-secondary">Full story →</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ── Hero ── */
+  .hero {
+    padding: 7rem 0 5rem;
+  }
+
+  .hero-inner {
+    max-width: 720px;
+  }
+
+  .hero-title {
+    background: linear-gradient(135deg, var(--text) 30%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+
+  .hero-tagline {
+    font-size: clamp(1.1rem, 2.5vw, 1.35rem);
+    color: var(--text-muted);
+    margin-bottom: 2.5rem;
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  /* ── Sections ── */
+  .section { padding: 3.5rem 0; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 1.75rem;
+  }
+
+  .see-all {
+    color: var(--accent);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  .empty-notice {
+    color: var(--text-muted);
+  }
+  .empty-notice code {
+    background: var(--surface-2);
+    padding: 0.125rem 0.375rem;
+    border-radius: 4px;
+    font-size: 0.875em;
+  }
+
+  /* ── About strip ── */
+  .about-strip {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    padding: 3.5rem 0;
+    margin-top: 1rem;
+  }
+
+  .about-inner { max-width: 640px; }
+
+  .about-text h2 { margin-bottom: 0.75rem; }
+  .about-text p {
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    font-size: 1.0625rem;
+  }
+</style>

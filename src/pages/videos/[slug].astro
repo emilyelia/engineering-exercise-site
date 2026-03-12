@@ -1,0 +1,197 @@
+---
+import type { GetStaticPaths } from 'astro';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getChannelVideos, type YouTubeVideo } from '../../lib/youtube';
+import { getCollection, getEntry } from 'astro:content';
+
+export const getStaticPaths: GetStaticPaths = async () => {
+  const [ytVideos, cmsEntries] = await Promise.all([
+    getChannelVideos(),
+    getCollection('videos'),
+  ]);
+
+  // Build a map of videoId → YouTubeVideo from the API
+  const apiMap = new Map<string, YouTubeVideo>(ytVideos.map(v => [v.id, v]));
+
+  // Build a map of videoId → CMS entry
+  const cmsMap = new Map(cmsEntries.map(e => [e.data.videoId, e]));
+
+  // Union of all known IDs (API + CMS)
+  const allIds = new Set([...apiMap.keys(), ...cmsMap.keys()]);
+
+  return Array.from(allIds).map(videoId => {
+    const apiVideo = apiMap.get(videoId);
+    const cmsEntry = cmsMap.get(videoId);
+
+    // Build a minimal video object even if the API didn't return this video
+    const video: YouTubeVideo = apiVideo ?? {
+      id: videoId,
+      title: cmsEntry?.data.title ?? videoId,
+      description: '',
+      thumbnail: `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`,
+      publishedAt: cmsEntry?.data.publishedAt?.toISOString() ?? new Date().toISOString(),
+    };
+
+    return { params: { slug: videoId }, props: { video } };
+  });
+};
+
+interface Props {
+  video: YouTubeVideo;
+}
+
+const { video } = Astro.props;
+const { slug } = Astro.params;
+
+// Load the CMS write-up if one exists (file must be named <videoId>.md)
+const cmsEntry = await getEntry('videos', slug);
+const { Content } = cmsEntry ? await cmsEntry.render() : { Content: null };
+
+// SEO description: prefer CMS field → YouTube description snippet → fallback
+const seoDescription =
+  cmsEntry?.data.description ??
+  (video.description ? video.description.slice(0, 155).trimEnd() + '…' : undefined) ??
+  `Watch "${video.title}" on Engineering Exercise.`;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: video.title,
+  description: seoDescription,
+  thumbnailUrl: video.thumbnail,
+  uploadDate: video.publishedAt,
+  embedUrl: `https://www.youtube.com/embed/${video.id}`,
+  url: `https://www.youtube.com/watch?v=${video.id}`,
+  author: {
+    '@type': 'Person',
+    name: 'Engineering Exercise',
+    url: 'https://www.youtube.com/@EngineeringExercise',
+  },
+};
+---
+
+<BaseLayout
+  title={video.title}
+  description={seoDescription}
+  image={video.thumbnail}
+  type="video.other"
+  publishedAt={video.publishedAt ? new Date(video.publishedAt) : undefined}
+  jsonLd={jsonLd}
+>
+  <article class="container page">
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="/videos">Videos</a>
+      <span aria-hidden="true"> / </span>
+      <span aria-current="page">{video.title}</span>
+    </nav>
+
+    <h1 class="video-title">{video.title}</h1>
+
+    {video.publishedAt && (
+      <time class="video-date" datetime={video.publishedAt}>
+        {new Date(video.publishedAt).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        })}
+      </time>
+    )}
+
+    <!-- YouTube embed — responsive 16:9 -->
+    <div class="embed-wrap">
+      <iframe
+        src={`https://www.youtube.com/embed/${video.id}`}
+        title={video.title}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        loading="lazy"
+      ></iframe>
+    </div>
+
+    {/* CMS write-up */}
+    {Content ? (
+      <section class="writeup prose" aria-label="Write-up">
+        <Content />
+      </section>
+    ) : (
+      <p class="no-writeup">
+        No write-up yet for this video.
+        <a href="/admin">Add one via the CMS →</a>
+      </p>
+    )}
+
+    <a href="/videos" class="back-link">← Back to Videos</a>
+  </article>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-top: 2.5rem;
+    padding-bottom: 5rem;
+    max-width: 900px;
+  }
+
+  .breadcrumb {
+    font-size: 0.875rem;
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    flex-wrap: wrap;
+  }
+  .breadcrumb a { color: var(--accent); }
+  .breadcrumb span[aria-current] {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 40ch;
+  }
+
+  .video-title {
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+  }
+
+  .video-date {
+    display: block;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+  }
+
+  /* Responsive 16:9 iframe */
+  .embed-wrap {
+    position: relative;
+    padding-bottom: 56.25%;
+    height: 0;
+    margin-bottom: 3rem;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .embed-wrap iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+  }
+
+  .writeup { margin-bottom: 3rem; }
+
+  .no-writeup {
+    color: var(--text-muted);
+    font-style: italic;
+    margin-bottom: 3rem;
+    padding: 1.5rem;
+    background: var(--surface);
+    border: 1px dashed var(--border);
+    border-radius: var(--radius);
+  }
+  .no-writeup a { font-style: normal; }
+</style>

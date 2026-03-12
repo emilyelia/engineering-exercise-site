@@ -1,0 +1,99 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  publishedAt: Date;
+  tags?: string[];
+}
+
+const { title, description, slug, publishedAt, tags } = Astro.props;
+
+const displayDate = publishedAt.toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
+---
+
+<article class="blog-card">
+  <a href={`/blog/${slug}`} class="card-link">
+    <div class="card-body">
+      {tags && tags.length > 0 && (
+        <div class="tags" aria-label="Tags">
+          {tags.map(tag => <span class="tag">#{tag}</span>)}
+        </div>
+      )}
+      <h3 class="card-title">{title}</h3>
+      <p class="card-description">{description}</p>
+      <time class="card-date" datetime={publishedAt.toISOString()}>{displayDate}</time>
+    </div>
+  </a>
+</article>
+
+<style>
+  .blog-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+    border-color: var(--accent);
+  }
+
+  .card-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .card-body {
+    padding: 1.25rem 1.5rem 1.5rem;
+  }
+
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 0.625rem;
+  }
+
+  .tag {
+    color: var(--accent);
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+
+  .card-title {
+    font-size: 1.1875rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.5rem;
+    transition: color 0.15s;
+  }
+
+  .blog-card:hover .card-title {
+    color: var(--accent);
+  }
+
+  .card-description {
+    color: var(--text-muted);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    margin-bottom: 0.875rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-date {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+  }
+</style>

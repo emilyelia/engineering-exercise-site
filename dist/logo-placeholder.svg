@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 44" fill="none">
+  <!--
+    LOGO PLACEHOLDER
+    ================
+    1. Create or export your logo as logo.svg (or logo.png)
+    2. Drop it into /public/
+    3. In src/components/Header.astro, change:
+         src="/logo-placeholder.svg"
+       to:
+         src="/logo.svg"   (or /logo.png)
+    4. Update width/height to match your logo's actual dimensions
+    5. Delete this file once your real logo is in place
+  -->
+  <rect width="180" height="44" rx="7" fill="#1e1e1e" stroke="#2a2a2a" stroke-width="1"/>
+
+  <!-- Orange accent square (mimics icon area) -->
+  <rect x="10" y="10" width="24" height="24" rx="4" fill="#f97316"/>
+  <text
+    x="22" y="26"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="700"
+    font-size="11"
+    fill="white"
+    text-anchor="middle"
+  >EE</text>
+
+  <!-- Channel name text -->
+  <text
+    x="44" y="20"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="700"
+    font-size="11"
+    fill="#f0f0f0"
+  >Engineering</text>
+  <text
+    x="44" y="34"
+    font-family="Inter, Arial, sans-serif"
+    font-weight="400"
+    font-size="11"
+    fill="#888888"
+  >Exercise</text>
+</svg>

@@ -1,0 +1,20 @@
+OG IMAGE PLACEHOLDER
+====================
+This file is a reminder to create a default Open Graph image.
+
+The image is shown when someone shares your site on social media (Twitter/X,
+LinkedIn, Slack, iMessage, etc.) and no page-specific image is available.
+
+Required specs:
+  - File name: og-default.png
+  - Dimensions: 1200 × 630 pixels
+  - Format: PNG or JPEG
+  - Content: Channel name, tagline, branding (logo, colors)
+
+Steps:
+  1. Design the image in Figma, Canva, or any image editor
+  2. Export as og-default.png (1200×630)
+  3. Drop it into /public/
+  4. Delete this .txt file
+
+Until you do this, social share previews will show a broken image.

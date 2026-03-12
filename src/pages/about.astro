@@ -1,0 +1,74 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="About"
+  description="About Engineering Exercise — who's behind the channel, what it's about, and why systematic engineering thinking matters."
+>
+  <div class="container page">
+    <!--
+      UPDATE THIS PAGE: Edit the content below directly in this file,
+      or move it to a CMS-managed markdown file if you prefer.
+    -->
+    <div class="about-layout">
+      <div class="about-content prose">
+        <h1>About Engineering Exercise</h1>
+
+        <p>
+          Engineering Exercise is a YouTube channel built on a simple idea:
+          <strong>the best way to understand something deeply is to exercise it</strong> —
+          to work through it step by step, under real constraints, with honest feedback.
+        </p>
+
+        <h2>What You'll Find Here</h2>
+        <p>
+          Every video is structured like a training session. A problem is introduced,
+          a method is applied, and the result is analyzed — no hand-waving, no
+          skipping steps. Topics range from system design to algorithm analysis to
+          real-world engineering tradeoffs.
+        </p>
+
+        <h2>The Channel</h2>
+        <p>
+          <!-- UPDATE: Replace with your personal story and channel description. -->
+          [Your story here — who you are, your engineering background,
+          why you started the channel, what drives you to make these videos.]
+        </p>
+
+        <h2>Find the Channel</h2>
+        <ul>
+          <li>
+            <a
+              href="https://www.youtube.com/@EngineeringExercise"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              YouTube — @EngineeringExercise
+            </a>
+          </li>
+          <!--
+            Add other social links here:
+            <li><a href="https://twitter.com/yourhandle">Twitter/X</a></li>
+            <li><a href="https://github.com/yourhandle">GitHub</a></li>
+          -->
+        </ul>
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<style>
+  .page {
+    padding-top: 3.5rem;
+    padding-bottom: 5rem;
+  }
+
+  .about-layout {
+    max-width: 720px;
+  }
+
+  .about-content h1 {
+    margin-bottom: 1.5rem;
+  }
+</style>

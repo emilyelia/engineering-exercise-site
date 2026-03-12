@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BlogCard from '../../components/BlogCard.astro';
+import { getCollection } from 'astro:content';
+
+const allPosts = await getCollection('blog');
+
+const posts = allPosts
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+---
+
+<BaseLayout
+  title="Blog"
+  description="Articles, tutorials, and engineering write-ups from the Engineering Exercise channel. Long-form content to complement the videos."
+>
+  <div class="container">
+    <header class="page-header">
+      <h1>Blog</h1>
+      {posts.length > 0 && (
+        <p class="page-subtitle">
+          {posts.length} article{posts.length !== 1 ? 's' : ''}
+        </p>
+      )}
+    </header>
+
+    {posts.length === 0 ? (
+      <div class="empty-state">
+        <p>No blog posts yet.</p>
+        <p>
+          Write your first post from the <a href="/admin">admin panel</a> at
+          <code>/admin</code>.
+        </p>
+      </div>
+    ) : (
+      <div class="post-list">
+        {posts.map(post => (
+          <BlogCard
+            title={post.data.title}
+            description={post.data.description}
+            slug={post.slug}
+            publishedAt={post.data.publishedAt}
+            tags={post.data.tags}
+          />
+        ))}
+      </div>
+    )}
+  </div>
+</BaseLayout>
+
+<style>
+  .container { padding-top: 3rem; padding-bottom: 5rem; }
+
+  .post-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 740px;
+  }
+</style>
